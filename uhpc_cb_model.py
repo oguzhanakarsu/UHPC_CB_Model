@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from catboost import CatBoostRegressor
+from catboost import CatBoostRegressor, Pool
 import shap
 import matplotlib.pyplot as plt
 
@@ -56,22 +56,28 @@ input_data = pd.DataFrame({
     "A/BM": [a_bm_ratio]
 })
 
+# Girişi CatBoost'un Pool formatına dönüştür
+pool = Pool(input_data)
+
 # Tahmin butonu
 if st.button("Predict"):
-    prediction = model.predict(input_data)
-    st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
-    
-    # SHAP değerlerini hesapla
-    explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(input_data)
+    try:
+        prediction = model.predict(pool)
+        st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
+        
+        # SHAP değerlerini hesapla
+        explainer = shap.TreeExplainer(model)
+        shap_values = explainer.shap_values(pool)
 
-    # SHAP Summary Plot
-    st.subheader("SHAP Summary Plot")
-    fig, ax = plt.subplots()
-    shap.summary_plot(shap_values, input_data, plot_type="bar", show=False)
-    st.pyplot(fig)
+        # SHAP Summary Plot
+        st.subheader("SHAP Summary Plot")
+        fig, ax = plt.subplots()
+        shap.summary_plot(shap_values, input_data, plot_type="bar", show=False)
+        st.pyplot(fig)
 
-    # SHAP Waterfall Plot
-    st.subheader("SHAP Waterfall Plot")
-    shap.waterfall_plot(explainer(input_data), max_display=10)
-    st.pyplot()
+        # SHAP Waterfall Plot
+        st.subheader("SHAP Waterfall Plot")
+        shap.waterfall_plot(explainer(input_data), max_display=10)
+        st.pyplot()
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
