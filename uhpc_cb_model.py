@@ -20,7 +20,7 @@ expected_columns = [
 # Yan panelde değişkenler
 st.sidebar.header("Feature Values")
 
-# Kullanıcı girişlerini al (hem slider hem manuel giriş ile)
+# Kullanıcı girişlerini al
 cement = st.sidebar.slider("Cement (C)", 270.0, 1251.2, 737.9, 1.0)
 slag = st.sidebar.slider("Slag (S)", 0.0, 375.0, 25.1, 1.0)
 silica_fume = st.sidebar.slider("Silica Fume (SF)", 0.0, 433.7, 136.9, 1.0)
@@ -92,7 +92,7 @@ if st.button("Predict"):
 
         # SHAP Waterfall Plot
         st.subheader("SHAP Waterfall Plot")
-        shap.waterfall_plot(explainer(input_data), max_display=10)
+        shap.waterfall_plot(shap_values[0], max_display=10)
         st.pyplot()
     except Exception as e:
         st.error(f"An error occurred: {e}")
