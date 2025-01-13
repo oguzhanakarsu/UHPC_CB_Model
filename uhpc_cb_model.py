@@ -48,6 +48,8 @@ input_data = pd.DataFrame({
 
 # Tahmin butonu
 if st.button("Predict"):
-    prediction = model.predict(input_data)
-    st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
-
+    try:
+        prediction = model.predict(input_data)
+        st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
