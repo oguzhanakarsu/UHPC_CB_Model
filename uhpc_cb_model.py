@@ -13,22 +13,28 @@ st.write("Bu uygulama, optimize edilmiş CatBoost modeli kullanarak ultra yükse
 model = CatBoostRegressor()
 model.load_model("optimized_catboost_model.cbm")
 
+# Modelin beklediği sütun adları
+expected_columns = [
+    "C", "S", "SF", "LP", "QP", "FA", "NS", "W", "Sand", "Gravel", "Fi",
+    "SP", "RH", "T", "Age", "SF/C", "SP/C", "C/W", "BM", "A/BM"
+]
+
 # Özellikler ve birimleri
 features = {
-    "Cement": [270.0, 1251.2],
-    "Silica fume": [0.0, 433.7],
-    "Slag": [0.0, 375.0],
-    "Fly ash": [0.0, 356.0],
-    "Quartz powder": [0.0, 397.0],
-    "Limestone powder": [0.0, 1058.2],
-    "Nano silica": [0.0, 47.5],
-    "Water": [90.0, 272.6],
-    "Fine aggregate": [0.0, 1502.8],
-    "Coarse aggregate": [0.0, 1195.0],
-    "Fiber": [0.0, 234.0],
-    "Superplasticizer": [1.1, 57.0],
-    "Temperature": [20.0, 210.0],
-    "Relative humidity": [50.0, 100.0],
+    "C": [270.0, 1251.2],
+    "S": [0.0, 375.0],
+    "SF": [0.0, 433.7],
+    "LP": [0.0, 1058.2],
+    "QP": [0.0, 397.0],
+    "FA": [0.0, 356.0],
+    "NS": [0.0, 47.5],
+    "W": [90.0, 272.6],
+    "Sand": [0.0, 1502.8],
+    "Gravel": [0.0, 1195.0],
+    "Fi": [0.0, 234.0],
+    "SP": [1.1, 57.0],
+    "RH": [50.0, 100.0],
+    "T": [20.0, 210.0],
     "Age": [7.0, 365.0]
 }
 
@@ -37,14 +43,29 @@ input_data = {}
 for feature, (min_val, max_val) in features.items():
     col1, col2 = st.columns([2, 1])
     with col1:
-        slider_val = st.slider(f"{feature} (kg/m³)", min_value=float(min_val), max_value=float(max_val), value=float(min_val))
+        slider_val = st.slider(f"{feature} (kg/m³)", min_value=float(min_val), max_value=float(max_val), value=float(min_val), key=f"slider_{feature}")
     with col2:
-        input_val = st.number_input(f"Manual {feature} (kg/m³)", min_value=float(min_val), max_value=float(max_val), value=slider_val)
+        input_val = st.number_input(feature, min_value=float(min_val), max_value=float(max_val), value=slider_val, key=f"input_{feature}")
     input_data[feature] = input_val
+
+    # Slider ve number input değerlerini senkronize et
+    if st.session_state[f"slider_{feature}"] != st.session_state[f"input_{feature}"]:
+        st.session_state[f"slider_{feature}"] = st.session_state[f"input_{feature}"]
+        st.session_state[f"input_{feature}"] = st.session_state[f"slider_{feature}"]
+
+# Ek özelliklerin hesaplanması
+input_data["SF/C"] = input_data["SF"] / input_data["C"]
+input_data["SP/C"] = input_data["SP"] / input_data["C"]
+input_data["C/W"] = input_data["C"] / input_data["W"]
+input_data["BM"] = input_data["C"] + input_data["SF"] + input_data["S"] + input_data["FA"] + input_data["LP"] + input_data["NS"]
+input_data["A/BM"] = (input_data["Sand"] + input_data["Gravel"]) / input_data["BM"]
+
+# Giriş verisini DataFrame'e dönüştür ve sütun sırasını garanti altına al
+input_df = pd.DataFrame([input_data])
+input_df = input_df[expected_columns]
 
 # Tahmin butonu
 if st.button("Predict"):
-    input_df = pd.DataFrame([input_data])
     pool = Pool(input_df)
     prediction = model.predict(pool)
     st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
@@ -56,9 +77,9 @@ if st.button("Predict"):
 
     # SHAP Summary Plot
     st.subheader("SHAP Summary Plot")
-    fig, ax = plt.subplots()
+    fig_summary, ax_summary = plt.subplots(figsize=(10, 5))
     shap.summary_plot(shap_values, input_df, plot_type="bar", show=False)
-    st.pyplot(fig)
+    st.pyplot(fig_summary)
 
 # PDP Grafikleri
 st.subheader("Partial Dependence Plot (PDP)")
@@ -71,10 +92,10 @@ if len(selected_features) == 2:
     Z = np.random.uniform(20, 150, X.shape)  # PDP değerleri burada tahminle doldurulabilir
 
     # 3D PDP Grafiği
-    fig = plt.figure(figsize=(10, 7))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(X, Y, Z, cmap='viridis')
-    ax.set_xlabel(selected_features[0])
-    ax.set_ylabel(selected_features[1])
-    ax.set_zlabel("Compressive Strength (MPa)")
-    st.pyplot(fig)
+    fig_pdp = plt.figure(figsize=(12, 8))
+    ax_pdp = fig_pdp.add_subplot(111, projection='3d')
+    ax_pdp.plot_surface(X, Y, Z, cmap='viridis')
+    ax_pdp.set_xlabel(selected_features[0])
+    ax_pdp.set_ylabel(selected_features[1])
+    ax_pdp.set_zlabel("Compressive Strength (MPa)")
+    st.pyplot(fig_pdp)
