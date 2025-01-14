@@ -71,9 +71,12 @@ input_df = input_df[expected_columns]
 
 # Tahmin butonu
 if st.button("Predict"):
-    pool = Pool(input_df)
-    prediction = model.predict(pool)
-    st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
+    try:
+        pool = Pool(input_df)
+        prediction = model.predict(pool)
+        st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
 
 # PDP Grafikleri
 st.subheader("Partial Dependence Plot (PDP)")
