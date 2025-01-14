@@ -105,5 +105,9 @@ with col4:
         ax_pdp.grid(True)
         st.pyplot(fig_pdp)
 
-    # Versiyon ve yazar bilgilerini PDP grafiğinin altına ekle, sağa hizalı
-    st.markdown("<div style='text-align: right;'>Version 1.0<br>Authors<br>Prof. Dr. Abdulkadir Cüneyt Aydın<br>Oguzhan Akarsu<br>Ataturk University</div>", unsafe_allow_html=True)
+    # Versiyon ve yazar bilgilerini PDP grafiğinin altına ekle, sağa hizalı ve kutucuk içinde italik yazı
+    st.markdown("""
+        <div style='text-align: right; border: 1px solid #ccc; padding: 10px; border-radius: 5px; font-style: italic;'>
+        Version 1.0<br>Authors<br>Prof. Dr. Abdulkadir Cüneyt Aydın<br>Oguzhan Akarsu<br>Ataturk University
+        </div>
+    """, unsafe_allow_html=True)
