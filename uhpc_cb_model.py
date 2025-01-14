@@ -45,14 +45,29 @@ units = {
     "Fine aggregate": "kg/m³", "Coarse aggregate": "kg/m³", "Fiber": "kg/m³", "Superplasticizer": "kg/m³", "Relative humidity": "%", "Temperature": "°C", "Age": "days"
 }
 
-# Sol sütunda kullanıcı girişlerini al, sağ sütunda PDP grafiği göster
-col1, col2 = st.columns(2)
+# Sayfa düzeni: 4 sütun
+col1, col2, col3, col4 = st.columns([1, 1, 1, 2])
 
+# Kullanıcı girişleri için ilk 3 sütun
+input_data = {}
 with col1:
-    # Kullanıcı girişlerini al
-    input_data = {}
-    for feature, (min_val, max_val) in features.items():
+    for feature in list(features.keys())[:5]:
         unit = units[feature]
+        min_val, max_val = features[feature]
+        input_val = st.number_input(f"{feature} ({unit})", min_value=float(min_val), max_value=float(max_val), value=(min_val + max_val) / 2, key=f"input_{feature}")
+        input_data[feature] = input_val
+
+with col2:
+    for feature in list(features.keys())[5:10]:
+        unit = units[feature]
+        min_val, max_val = features[feature]
+        input_val = st.number_input(f"{feature} ({unit})", min_value=float(min_val), max_value=float(max_val), value=(min_val + max_val) / 2, key=f"input_{feature}")
+        input_data[feature] = input_val
+
+with col3:
+    for feature in list(features.keys())[10:]:
+        unit = units[feature]
+        min_val, max_val = features[feature]
         input_val = st.number_input(f"{feature} ({unit})", min_value=float(min_val), max_value=float(max_val), value=(min_val + max_val) / 2, key=f"input_{feature}")
         input_data[feature] = input_val
 
@@ -63,24 +78,23 @@ with col1:
     input_data["BM"] = input_data["Cement"] + input_data["Silica fume"] + input_data["Slag"] + input_data["Fly ash"] + input_data["Limestone powder"] + input_data["Nano silica"]
     input_data["A/BM"] = (input_data["Fine aggregate"] + input_data["Coarse aggregate"]) / input_data["BM"]
 
-    # Giriş verisini DataFrame'e dönüştür ve sütun sırasını garanti altına al
-    input_df = pd.DataFrame([input_data])
-    input_df.columns = expected_columns
-
     # Tahmin butonu
     if st.button("Predict"):
         try:
+            input_df = pd.DataFrame([input_data])
+            input_df.columns = expected_columns
             pool = Pool(input_df)
             prediction = model.predict(pool)
             st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
 
-with col2:
-    # PDP Grafikleri
+# PDP Grafikleri için 4. sütun
+with col4:
     st.subheader("Partial Dependence Plot (PDP)")
     selectable_features = list(features.keys())
     selected_feature = st.selectbox("Select a feature for PDP", selectable_features)
+
     if selected_feature in features:
         x_values = np.linspace(features[selected_feature][0], features[selected_feature][1], 50)
         input_df_for_pdp = pd.DataFrame([{selected_feature: x, **{f: input_data[f] for f in input_data if f != selected_feature}} for x in x_values])
