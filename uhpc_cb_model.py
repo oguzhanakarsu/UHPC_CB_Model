@@ -11,13 +11,6 @@ st.set_page_config(layout="wide")
 st.title("UHPC Prediction with CatBoost")
 st.write("Bu uygulama, optimize edilmiş CatBoost modeli kullanarak ultra yüksek performanslı betonun basınç dayanımını tahmin eder.")
 
-# Versiyon ve Yazar Bilgisi
-st.write("Version 1.0")
-st.write("Authors")
-st.write("Prof. Dr. Abdulkadir Cüneyt Aydın")
-st.write("Oguzhan Akarsu")
-st.write("Ataturk University")
-
 # Modeli yükle
 model = CatBoostRegressor()
 model.load_model("optimized_catboost_model.cbm")
@@ -112,9 +105,5 @@ with col4:
         ax_pdp.grid(True)
         st.pyplot(fig_pdp)
 
-    # Versiyon ve yazar bilgilerini PDP grafiğinin altına ekle
-    st.write("Version 1.0")
-    st.write("Authors")
-    st.write("Prof. Dr. Abdulkadir Cüneyt Aydın")
-    st.write("Oguzhan Akarsu")
-    st.write("Ataturk University")
+    # Versiyon ve yazar bilgilerini PDP grafiğinin altına ekle, sağa hizalı
+    st.markdown("<div style='text-align: right;'>Version 1.0<br>Authors<br>Prof. Dr. Abdulkadir Cüneyt Aydın<br>Oguzhan Akarsu<br>Ataturk University</div>", unsafe_allow_html=True)
