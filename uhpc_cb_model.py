@@ -49,6 +49,7 @@ units = {
 col1, col2, col3, col4 = st.columns([1, 1, 1, 2])
 
 # "Feature Values" başlığı ekleniyor
+col1, col2, col3 = st.columns([1, 1, 1])
 col1.subheader("Feature Values")
 
 # Kullanıcı girişleri için ilk 3 sütun
@@ -58,6 +59,7 @@ for feature, col in zip(list(features.keys()), [col1, col1, col1, col2, col2, co
     unit = units[feature]
     min_val, max_val = features[feature]
     input_val = col.number_input(f"{feature} ({unit})", min_value=float(min_val), max_value=float(max_val), value=(min_val + max_val) / 2, key=f"input_{feature}")
+    col.caption(f"Min: {min_val}, Max: {max_val}")
     input_data[feature] = input_val
 
 # Ek özelliklerin hesaplanması
@@ -75,7 +77,7 @@ with col3:
             input_df.columns = expected_columns
             pool = Pool(input_df)
             prediction = model.predict(pool)
-            col3.text_input("Predicted Compressive Strength (MPa)", value=f"{prediction[0]:.2f}", key="prediction_output")
+            st.text_input("Predicted Compressive Strength (MPa)", value=f"{prediction[0]:.2f}", key="prediction_output")
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
 
