@@ -54,9 +54,10 @@ for feature, (min_val, max_val) in features.items():
     input_data[feature] = input_val
 
     # Slider ve number input değerlerini senkronize et
-    if st.session_state[f"slider_{feature}"] != st.session_state[f"input_{feature}"]:
-        st.session_state[f"slider_{feature}"] = st.session_state[f"input_{feature}"]
-        st.session_state[f"input_{feature}"] = st.session_state[f"slider_{feature}"]
+    if st.session_state.get(f"slider_{feature}", None) != input_val:
+        st.session_state[f"slider_{feature}"] = input_val
+    if st.session_state.get(f"input_{feature}", None) != slider_val:
+        st.session_state[f"input_{feature}"] = slider_val
 
 # Ek özelliklerin hesaplanması
 input_data["SF/C"] = input_data["Silica fume"] / input_data["Cement"]
@@ -84,6 +85,7 @@ selected_feature = st.selectbox("Select a feature for PDP", list(input_data.keys
 if selected_feature:
     x_values = np.linspace(features[selected_feature][0], features[selected_feature][1], 50)
     input_df_for_pdp = pd.DataFrame([{selected_feature: x, **{f: input_data[f] for f in input_data if f != selected_feature}} for x in x_values])
+    input_df_for_pdp = input_df_for_pdp.reindex(columns=expected_columns, fill_value=0)
     pool_for_pdp = Pool(input_df_for_pdp)
     y_values = model.predict(pool_for_pdp)
 
