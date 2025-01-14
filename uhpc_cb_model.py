@@ -50,12 +50,15 @@ col1, col2, col3, col4 = st.columns([1, 1, 1, 2])
 
 # "Feature Values" başlığı ekleniyor
 col1, col2, col3 = st.columns([1, 1, 1])
-col1.subheader("Feature Values")
+with col1:
+    st.subheader("Feature Values")
 
 # Kullanıcı girişleri için ilk 3 sütun
 input_data = {}
 
-for feature, col in zip(list(features.keys()), [col1, col1, col1, col2, col2, col2, col3, col3, col3, col3, col1, col2, col3, col2, col1]):
+feature_cols = [col1, col2, col3]
+
+for idx, (feature, col) in enumerate(zip(list(features.keys()), feature_cols * (len(features) // len(feature_cols) + 1))):
     unit = units[feature]
     min_val, max_val = features[feature]
     input_val = col.number_input(f"{feature} ({unit})", min_value=float(min_val), max_value=float(max_val), value=(min_val + max_val) / 2, key=f"input_{feature}")
