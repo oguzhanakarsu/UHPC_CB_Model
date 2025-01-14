@@ -49,8 +49,7 @@ units = {
 col1, col2, col3, col4 = st.columns([1, 1, 1, 2])
 
 # "Feature Values" başlığı ekleniyor
-with col1:
-    st.subheader("Feature Values")
+col1.subheader("Feature Values")
 
 # Kullanıcı girişleri için ilk 3 sütun
 input_data = {}
@@ -76,7 +75,6 @@ with col3:
             input_df.columns = expected_columns
             pool = Pool(input_df)
             prediction = model.predict(pool)
-            st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
             col3.text_input("Predicted Compressive Strength (MPa)", value=f"{prediction[0]:.2f}", key="prediction_output")
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
