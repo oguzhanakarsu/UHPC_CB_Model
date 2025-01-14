@@ -9,7 +9,7 @@ st.set_page_config(layout="wide")
 
 # Başlık ve Açıklama
 st.title("Optimize CatBoost Model for UHPC Compressive Strength Prediction")
-st.write("This GUI is designed based on the study titled "Optimized Machine Learning Models for Predicting Ultra-High-Performance Concrete Compressive Strength: A Hyperopt-Based Approach".
+st.write("This GUI is designed based on the study titled 'Optimized Machine Learning Models for Predicting Ultra-High-Performance Concrete Compressive Strength: A Hyperopt-Based Approach'.
 The application leverages a CatBoost model, optimized using the Hyperopt algorithm, to predict the compressive strength of ultra-high-performance concrete (UHPC) based on various input features. By adjusting the feature values, users can obtain real-time predictions of the concrete's compressive strength.
 
 Purpose of Partial Dependence Plots (PDPs)
