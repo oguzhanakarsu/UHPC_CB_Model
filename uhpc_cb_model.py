@@ -14,8 +14,8 @@ model.load_model("optimized_catboost_model.cbm")
 
 # Modelin beklediği sütun adları
 expected_columns = [
-    "Cement", "Slag", "Silica fume", "Limestone powder", "Quartz powder", "Fly ash", "Nano silica", "Water", "Fine aggregate", "Coarse aggregate", "Fiber",
-    "Superplasticizer", "Relative humidity", "Temperature", "Age", "SF/C", "SP/C", "C/W", "BM", "A/BM"
+    "C", "S", "SF", "LP", "QP", "FA", "NS", "W", "Sand", "Gravel", "Fi",
+    "SP", "RH", "T", "Age", "SF/C", "SP/C", "C/W", "BM", "A/BM"
 ]
 
 # Özellikler ve birimleri
@@ -59,7 +59,7 @@ input_data["A/BM"] = (input_data["Fine aggregate"] + input_data["Coarse aggregat
 
 # Giriş verisini DataFrame'e dönüştür ve sütun sırasını garanti altına al
 input_df = pd.DataFrame([input_data])
-input_df = input_df[expected_columns]
+input_df.columns = expected_columns
 
 # Tahmin butonu
 if st.button("Predict"):
@@ -76,7 +76,7 @@ selected_feature = st.selectbox("Select a feature for PDP", list(input_data.keys
 if selected_feature:
     x_values = np.linspace(features[selected_feature][0], features[selected_feature][1], 50)
     input_df_for_pdp = pd.DataFrame([{selected_feature: x, **{f: input_data[f] for f in input_data if f != selected_feature}} for x in x_values])
-    input_df_for_pdp = input_df_for_pdp.reindex(columns=expected_columns, fill_value=0)
+    input_df_for_pdp.columns = expected_columns
     pool_for_pdp = Pool(input_df_for_pdp)
     y_values = model.predict(pool_for_pdp)
 
