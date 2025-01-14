@@ -54,10 +54,10 @@ for feature, (min_val, max_val) in features.items():
     input_data[feature] = input_val
 
     # Slider ve number input değerlerini senkronize et
-    if st.session_state.get(f"slider_{feature}", None) != input_val:
-        st.session_state[f"slider_{feature}"] = input_val
-    if st.session_state.get(f"input_{feature}", None) != slider_val:
-        st.session_state[f"input_{feature}"] = slider_val
+    if f"slider_{feature}" in st.session_state and f"input_{feature}" in st.session_state:
+        if st.session_state[f"slider_{feature}"] != st.session_state[f"input_{feature}"]:
+            st.session_state[f"slider_{feature}"] = st.session_state[f"input_{feature}"]
+            st.session_state[f"input_{feature}"] = st.session_state[f"slider_{feature}"]
 
 # Ek özelliklerin hesaplanması
 input_data["SF/C"] = input_data["Silica fume"] / input_data["Cement"]
