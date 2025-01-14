@@ -111,3 +111,10 @@ with col4:
         ax_pdp.set_ylabel("Compressive Strength (MPa)")
         ax_pdp.grid(True)
         st.pyplot(fig_pdp)
+
+    # Versiyon ve yazar bilgilerini PDP grafiğinin altına ekle
+    st.write("Version 1.0")
+    st.write("Authors")
+    st.write("Prof. Dr. Abdulkadir Cüneyt Aydın")
+    st.write("Oguzhan Akarsu")
+    st.write("Ataturk University")
