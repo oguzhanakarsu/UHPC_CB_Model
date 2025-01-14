@@ -54,35 +54,22 @@ with col1:
 
 # Kullanıcı girişleri için ilk 3 sütun
 input_data = {}
-with col1:
-    for feature in list(features.keys())[:5]:
-        unit = units[feature]
-        min_val, max_val = features[feature]
-        input_val = st.number_input(f"{feature} ({unit})", min_value=float(min_val), max_value=float(max_val), value=(min_val + max_val) / 2, key=f"input_{feature}")
-        input_data[feature] = input_val
 
-with col2:
-    for feature in list(features.keys())[5:10]:
-        unit = units[feature]
-        min_val, max_val = features[feature]
-        input_val = st.number_input(f"{feature} ({unit})", min_value=float(min_val), max_value=float(max_val), value=(min_val + max_val) / 2, key=f"input_{feature}")
-        input_data[feature] = input_val
+for feature, col in zip(list(features.keys()), [col1, col1, col1, col2, col2, col2, col3, col3, col3, col3, col1, col2, col3]):
+    unit = units[feature]
+    min_val, max_val = features[feature]
+    input_val = col.number_input(f"{feature} ({unit})", min_value=float(min_val), max_value=float(max_val), value=(min_val + max_val) / 2, key=f"input_{feature}")
+    input_data[feature] = input_val
 
+# Ek özelliklerin hesaplanması
+input_data["SF/C"] = input_data["Silica fume"] / input_data["Cement"]
+input_data["SP/C"] = input_data["Superplasticizer"] / input_data["Cement"]
+input_data["C/W"] = input_data["Cement"] / input_data["Water"]
+input_data["BM"] = input_data["Cement"] + input_data["Silica fume"] + input_data["Slag"] + input_data["Fly ash"] + input_data["Limestone powder"] + input_data["Nano silica"]
+input_data["A/BM"] = (input_data["Fine aggregate"] + input_data["Coarse aggregate"]) / input_data["BM"]
+
+# Tahmin butonu ve sonuç kutusu
 with col3:
-    for feature in list(features.keys())[10:]:
-        unit = units[feature]
-        min_val, max_val = features[feature]
-        input_val = st.number_input(f"{feature} ({unit})", min_value=float(min_val), max_value=float(max_val), value=(min_val + max_val) / 2, key=f"input_{feature}")
-        input_data[feature] = input_val
-
-    # Ek özelliklerin hesaplanması
-    input_data["SF/C"] = input_data["Silica fume"] / input_data["Cement"]
-    input_data["SP/C"] = input_data["Superplasticizer"] / input_data["Cement"]
-    input_data["C/W"] = input_data["Cement"] / input_data["Water"]
-    input_data["BM"] = input_data["Cement"] + input_data["Silica fume"] + input_data["Slag"] + input_data["Fly ash"] + input_data["Limestone powder"] + input_data["Nano silica"]
-    input_data["A/BM"] = (input_data["Fine aggregate"] + input_data["Coarse aggregate"]) / input_data["BM"]
-
-    # Tahmin butonu ve sonuç kutusu
     if st.button("Predict"):
         try:
             input_df = pd.DataFrame([input_data])
