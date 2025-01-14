@@ -49,8 +49,9 @@ units = {
 col1, col2, col3, col4 = st.columns([1, 1, 1, 2])
 
 # "Feature Values" başlığı ekleniyor
-with col1:
-    st.subheader("Feature Values")
+col1.subheader("Feature Values")
+col2.subheader(" ")
+col3.subheader(" ")
 
 # Kullanıcı girişleri için ilk 3 sütun
 input_data = {}
