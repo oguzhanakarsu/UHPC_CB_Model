@@ -15,21 +15,21 @@ model.load_model("optimized_catboost_model.cbm")
 
 # Özellikler ve birimleri
 features = {
-    "Cement": [270, 1251.2],
-    "Silica fume": [0, 433.7],
-    "Slag": [0, 375.0],
-    "Fly ash": [0, 356.0],
-    "Quartz powder": [0, 397.0],
-    "Limestone powder": [0, 1058.2],
-    "Nano silica": [0, 47.5],
-    "Water": [90, 272.6],
-    "Fine aggregate": [0, 1502.8],
-    "Coarse aggregate": [0, 1195.0],
-    "Fiber": [0, 234.0],
+    "Cement": [270.0, 1251.2],
+    "Silica fume": [0.0, 433.7],
+    "Slag": [0.0, 375.0],
+    "Fly ash": [0.0, 356.0],
+    "Quartz powder": [0.0, 397.0],
+    "Limestone powder": [0.0, 1058.2],
+    "Nano silica": [0.0, 47.5],
+    "Water": [90.0, 272.6],
+    "Fine aggregate": [0.0, 1502.8],
+    "Coarse aggregate": [0.0, 1195.0],
+    "Fiber": [0.0, 234.0],
     "Superplasticizer": [1.1, 57.0],
-    "Temperature": [20, 210],
-    "Relative humidity": [50, 100],
-    "Age": [7, 365]
+    "Temperature": [20.0, 210.0],
+    "Relative humidity": [50.0, 100.0],
+    "Age": [7.0, 365.0]
 }
 
 # Kullanıcı girişlerini al
@@ -37,9 +37,9 @@ input_data = {}
 for feature, (min_val, max_val) in features.items():
     col1, col2 = st.columns([2, 1])
     with col1:
-        slider_val = st.slider(f"{feature} (kg/m³)", min_value=min_val, max_value=max_val, value=min_val)
+        slider_val = st.slider(f"{feature} (kg/m³)", min_value=float(min_val), max_value=float(max_val), value=float(min_val))
     with col2:
-        input_val = st.number_input(f"Manual {feature} (kg/m³)", min_value=min_val, max_value=max_val, value=slider_val)
+        input_val = st.number_input(f"Manual {feature} (kg/m³)", min_value=float(min_val), max_value=float(max_val), value=slider_val)
     input_data[feature] = input_val
 
 # Tahmin butonu
