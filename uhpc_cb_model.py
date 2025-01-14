@@ -113,7 +113,7 @@ with col4:
 with col4:
     st.markdown(
         """
-        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+        <div style="border: 1px solid #ddd; padding: 5px; border-radius: 5px; text-align: right; width: 250px; margin-left: auto;">
         <i>Version 1.0<br>
         Authors<br>
         Prof. Dr. Abdulkadir Cüneyt Aydın<br>
