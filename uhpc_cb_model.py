@@ -75,11 +75,12 @@ if st.button("Predict"):
 
 # PDP Grafikleri
 st.subheader("Partial Dependence Plot (PDP)")
-selected_feature = st.selectbox("Select a feature for PDP", list(input_data.keys()))
-if selected_feature:
+selectable_features = list(features.keys())
+selected_feature = st.selectbox("Select a feature for PDP", selectable_features)
+if selected_feature in features:
     x_values = np.linspace(features[selected_feature][0], features[selected_feature][1], 50)
     input_df_for_pdp = pd.DataFrame([{selected_feature: x, **{f: input_data[f] for f in input_data if f != selected_feature}} for x in x_values])
-    input_df_for_pdp.columns = expected_columns
+    input_df_for_pdp = input_df_for_pdp[expected_columns]
     pool_for_pdp = Pool(input_df_for_pdp)
     y_values = model.predict(pool_for_pdp)
 
