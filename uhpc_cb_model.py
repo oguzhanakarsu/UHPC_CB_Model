@@ -55,7 +55,7 @@ with col1:
 # Kullanıcı girişleri için ilk 3 sütun
 input_data = {}
 
-for feature, col in zip(list(features.keys()), [col1, col1, col1, col2, col2, col2, col3, col3, col3, col3, col1, col2, col3]):
+for feature, col in zip(list(features.keys()), [col1, col1, col1, col2, col2, col2, col3, col3, col3, col3, col1, col2, col3, col2, col1]):
     unit = units[feature]
     min_val, max_val = features[feature]
     input_val = col.number_input(f"{feature} ({unit})", min_value=float(min_val), max_value=float(max_val), value=(min_val + max_val) / 2, key=f"input_{feature}")
@@ -77,7 +77,7 @@ with col3:
             pool = Pool(input_df)
             prediction = model.predict(pool)
             st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
-            st.text_input("Predicted Compressive Strength (MPa)", value=f"{prediction[0]:.2f}", key="prediction_output")
+            col3.text_input("Predicted Compressive Strength (MPa)", value=f"{prediction[0]:.2f}", key="prediction_output")
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
 
