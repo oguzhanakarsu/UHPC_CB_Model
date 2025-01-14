@@ -45,49 +45,53 @@ units = {
     "Fine aggregate": "kg/m³", "Coarse aggregate": "kg/m³", "Fiber": "kg/m³", "Superplasticizer": "kg/m³", "Relative humidity": "%", "Temperature": "°C", "Age": "days"
 }
 
-# Kullanıcı girişlerini al
-input_data = {}
-for feature, (min_val, max_val) in features.items():
-    unit = units[feature]
-    col1 = st.columns([1])[0]
-    input_val = col1.number_input(f"{feature} ({unit})", min_value=float(min_val), max_value=float(max_val), value=(min_val + max_val) / 2, key=f"input_{feature}")
-    input_data[feature] = input_val
+# Sol sütunda kullanıcı girişlerini al, sağ sütunda PDP grafiği göster
+col1, col2 = st.columns(2)
 
-# Ek özelliklerin hesaplanması
-input_data["SF/C"] = input_data["Silica fume"] / input_data["Cement"]
-input_data["SP/C"] = input_data["Superplasticizer"] / input_data["Cement"]
-input_data["C/W"] = input_data["Cement"] / input_data["Water"]
-input_data["BM"] = input_data["Cement"] + input_data["Silica fume"] + input_data["Slag"] + input_data["Fly ash"] + input_data["Limestone powder"] + input_data["Nano silica"]
-input_data["A/BM"] = (input_data["Fine aggregate"] + input_data["Coarse aggregate"]) / input_data["BM"]
+with col1:
+    # Kullanıcı girişlerini al
+    input_data = {}
+    for feature, (min_val, max_val) in features.items():
+        unit = units[feature]
+        input_val = st.number_input(f"{feature} ({unit})", min_value=float(min_val), max_value=float(max_val), value=(min_val + max_val) / 2, key=f"input_{feature}")
+        input_data[feature] = input_val
 
-# Giriş verisini DataFrame'e dönüştür ve sütun sırasını garanti altına al
-input_df = pd.DataFrame([input_data])
-input_df.columns = expected_columns
+    # Ek özelliklerin hesaplanması
+    input_data["SF/C"] = input_data["Silica fume"] / input_data["Cement"]
+    input_data["SP/C"] = input_data["Superplasticizer"] / input_data["Cement"]
+    input_data["C/W"] = input_data["Cement"] / input_data["Water"]
+    input_data["BM"] = input_data["Cement"] + input_data["Silica fume"] + input_data["Slag"] + input_data["Fly ash"] + input_data["Limestone powder"] + input_data["Nano silica"]
+    input_data["A/BM"] = (input_data["Fine aggregate"] + input_data["Coarse aggregate"]) / input_data["BM"]
 
-# Tahmin butonu
-if st.button("Predict"):
-    try:
-        pool = Pool(input_df)
-        prediction = model.predict(pool)
-        st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
-    except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
+    # Giriş verisini DataFrame'e dönüştür ve sütun sırasını garanti altına al
+    input_df = pd.DataFrame([input_data])
+    input_df.columns = expected_columns
 
-# PDP Grafikleri
-st.subheader("Partial Dependence Plot (PDP)")
-selectable_features = list(features.keys())
-selected_feature = st.selectbox("Select a feature for PDP", selectable_features)
-if selected_feature in features:
-    x_values = np.linspace(features[selected_feature][0], features[selected_feature][1], 50)
-    input_df_for_pdp = pd.DataFrame([{selected_feature: x, **{f: input_data[f] for f in input_data if f != selected_feature}} for x in x_values])
-    input_df_for_pdp = input_df_for_pdp[expected_columns]
-    pool_for_pdp = Pool(input_df_for_pdp)
-    y_values = model.predict(pool_for_pdp)
+    # Tahmin butonu
+    if st.button("Predict"):
+        try:
+            pool = Pool(input_df)
+            prediction = model.predict(pool)
+            st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
+        except Exception as e:
+            st.error(f"An error occurred: {str(e)}")
 
-    # 2D PDP Grafiği
-    fig_pdp, ax_pdp = plt.subplots(figsize=(10, 5))
-    ax_pdp.plot(x_values, y_values, marker='o')
-    ax_pdp.set_xlabel(f"{selected_feature} ({units[selected_feature]})")
-    ax_pdp.set_ylabel("Compressive Strength (MPa)")
-    ax_pdp.grid(True)
-    st.pyplot(fig_pdp)
+with col2:
+    # PDP Grafikleri
+    st.subheader("Partial Dependence Plot (PDP)")
+    selectable_features = list(features.keys())
+    selected_feature = st.selectbox("Select a feature for PDP", selectable_features)
+    if selected_feature in features:
+        x_values = np.linspace(features[selected_feature][0], features[selected_feature][1], 50)
+        input_df_for_pdp = pd.DataFrame([{selected_feature: x, **{f: input_data[f] for f in input_data if f != selected_feature}} for x in x_values])
+        input_df_for_pdp = input_df_for_pdp[expected_columns]
+        pool_for_pdp = Pool(input_df_for_pdp)
+        y_values = model.predict(pool_for_pdp)
+
+        # 2D PDP Grafiği
+        fig_pdp, ax_pdp = plt.subplots(figsize=(10, 5))
+        ax_pdp.plot(x_values, y_values, marker='o')
+        ax_pdp.set_xlabel(f"{selected_feature} ({units[selected_feature]})")
+        ax_pdp.set_ylabel("Compressive Strength (MPa)")
+        ax_pdp.grid(True)
+        st.pyplot(fig_pdp)
