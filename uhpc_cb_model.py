@@ -49,9 +49,8 @@ units = {
 col1, col2, col3, col4 = st.columns([1, 1, 1, 2])
 
 # "Feature Values" başlığı ekleniyor
-col1.subheader("Feature Values")
-col2.subheader(" ")
-col3.subheader(" ")
+with col1:
+    st.subheader("Feature Values")
 
 # Kullanıcı girişleri için ilk 3 sütun
 input_data = {}
@@ -74,6 +73,7 @@ input_data["A/BM"] = (input_data["Fine aggregate"] + input_data["Coarse aggregat
 
 # Tahmin butonu ve sonuç kutusu
 with col3:
+    prediction_output = col3.text_input("Predicted Compressive Strength (MPa)", value="", key="prediction_output")
     if st.button("Predict"):
         try:
             input_df = pd.DataFrame([input_data])
@@ -106,8 +106,11 @@ with col4:
         st.pyplot(fig_pdp)
 
     # Versiyon ve yazar bilgilerini PDP grafiğinin altına ekle, sağa hizalı ve kutucuk içinde italik yazı
-    st.markdown("""
-        <div style='text-align: right; border: 1px solid #ccc; padding: 10px; border-radius: 5px; font-style: italic;'>
+    st.markdown(
+        """
+        <div style='text-align: right; border: 1px solid #ccc; padding: 10px; border-radius: 5px; font-style: italic; width: 200px;'>
         Version 1.0<br>Authors<br>Prof. Dr. Abdulkadir Cüneyt Aydın<br>Oguzhan Akarsu<br>Ataturk University
         </div>
-    """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True
+    )
