@@ -4,7 +4,6 @@ import numpy as np
 from catboost import CatBoostRegressor, Pool
 import shap
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 # Başlık ve Açıklama
 st.title("UHPC Prediction with CatBoost")
@@ -16,21 +15,21 @@ model.load_model("optimized_catboost_model.cbm")
 
 # Özellikler ve birimleri
 features = {
-    "Cement (C, kg/m³)": [270, 1251.2],
-    "Silica fume (SF, kg/m³)": [0, 433.7],
-    "Slag (S, kg/m³)": [0, 375.0],
-    "Fly ash (FA, kg/m³)": [0, 356.0],
-    "Quartz powder (QP, kg/m³)": [0, 397.0],
-    "Limestone powder (LP, kg/m³)": [0, 1058.2],
-    "Nano silica (NS, kg/m³)": [0, 47.5],
-    "Water (W, kg/m³)": [90, 272.6],
-    "Fine aggregate (Sand, kg/m³)": [0, 1502.8],
-    "Coarse aggregate (Gravel, kg/m³)": [0, 1195.0],
-    "Fiber (Fi, kg/m³)": [0, 234.0],
-    "Superplasticizer (SP, kg/m³)": [1.1, 57.0],
-    "Temperature (T, °C)": [20, 210],
-    "Relative humidity (RH, %)": [50, 100],
-    "Age (days)": [7, 365]
+    "Cement": [270, 1251.2],
+    "Silica fume": [0, 433.7],
+    "Slag": [0, 375.0],
+    "Fly ash": [0, 356.0],
+    "Quartz powder": [0, 397.0],
+    "Limestone powder": [0, 1058.2],
+    "Nano silica": [0, 47.5],
+    "Water": [90, 272.6],
+    "Fine aggregate": [0, 1502.8],
+    "Coarse aggregate": [0, 1195.0],
+    "Fiber": [0, 234.0],
+    "Superplasticizer": [1.1, 57.0],
+    "Temperature": [20, 210],
+    "Relative humidity": [50, 100],
+    "Age": [7, 365]
 }
 
 # Kullanıcı girişlerini al
@@ -38,10 +37,10 @@ input_data = {}
 for feature, (min_val, max_val) in features.items():
     col1, col2 = st.columns([2, 1])
     with col1:
-        slider_val = st.slider(feature, min_value=min_val, max_value=max_val, value=(min_val + max_val) / 2)
+        slider_val = st.slider(f"{feature} (kg/m³)", min_value=min_val, max_value=max_val, value=(min_val + max_val) / 2)
     with col2:
-        input_val = st.number_input(f"Manual {feature}", min_value=min_val, max_value=max_val, value=slider_val)
-    input_data[feature.split(" (")[0]] = input_val
+        input_val = st.number_input(f"Manual {feature} (kg/m³)", min_value=min_val, max_value=max_val, value=slider_val)
+    input_data[feature] = input_val
 
 # Tahmin butonu
 if st.button("Predict"):
