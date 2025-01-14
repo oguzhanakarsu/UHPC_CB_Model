@@ -37,7 +37,7 @@ input_data = {}
 for feature, (min_val, max_val) in features.items():
     col1, col2 = st.columns([2, 1])
     with col1:
-        slider_val = st.slider(f"{feature} (kg/m³)", min_value=min_val, max_value=max_val, value=(min_val + max_val) / 2)
+        slider_val = st.slider(f"{feature} (kg/m³)", min_value=min_val, max_value=max_val, value=min_val)
     with col2:
         input_val = st.number_input(f"Manual {feature} (kg/m³)", min_value=min_val, max_value=max_val, value=slider_val)
     input_data[feature] = input_val
