@@ -4,6 +4,9 @@ import numpy as np
 from catboost import CatBoostRegressor, Pool
 import matplotlib.pyplot as plt
 
+# Sayfa düzenini yatay yapmak
+st.set_page_config(layout="wide")
+
 # Başlık ve Açıklama
 st.title("UHPC Prediction with CatBoost")
 st.write("Bu uygulama, optimize edilmiş CatBoost modeli kullanarak ultra yüksek performanslı betonun basınç dayanımını tahmin eder.")
@@ -87,6 +90,3 @@ if selected_feature:
     ax_pdp.set_ylabel("Compressive Strength (MPa)")
     ax_pdp.grid(True)
     st.pyplot(fig_pdp)
-
-# Sayfa düzenini yatay yapmak
-st.set_page_config(layout="wide")
