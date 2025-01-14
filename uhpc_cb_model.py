@@ -74,15 +74,19 @@ input_data["A/BM"] = (input_data["Fine aggregate"] + input_data["Coarse aggregat
 
 # Tahmin butonu ve sonuç kutusu
 with col3:
-    if st.button("Predict"):
-        try:
-            input_df = pd.DataFrame([input_data])
-            input_df.columns = expected_columns
-            pool = Pool(input_df)
-            prediction = model.predict(pool)
-            col3.text_input("Predicted Compressive Strength (MPa)", value=f"{prediction[0]:.2f}", key="prediction_output")
-        except Exception as e:
-            st.error(f"An error occurred: {str(e)}")
+    predict_col1, predict_col2 = st.columns([1, 1])
+    with predict_col1:
+        if st.button("Predict"):
+            try:
+                input_df = pd.DataFrame([input_data])
+                input_df.columns = expected_columns
+                pool = Pool(input_df)
+                prediction = model.predict(pool)
+                st.session_state["prediction_output"] = f"{prediction[0]:.2f}"
+            except Exception as e:
+                st.error(f"An error occurred: {str(e)}")
+    with predict_col2:
+        st.text_input("Predicted Compressive Strength (MPa)", value=st.session_state.get("prediction_output", ""), key="prediction_output")
 
 # PDP Grafikleri için 4. sütun
 with col4:
@@ -104,3 +108,18 @@ with col4:
         ax_pdp.set_ylabel("Compressive Strength (MPa)")
         ax_pdp.grid(True)
         st.pyplot(fig_pdp)
+
+# Versiyon ve Yazar Bilgileri
+with col4:
+    st.markdown(
+        """
+        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+        <i>Version 1.0<br>
+        Authors<br>
+        Prof. Dr. Abdulkadir Cüneyt Aydın<br>
+        Oguzhan Akarsu<br>
+        Ataturk University</i>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
