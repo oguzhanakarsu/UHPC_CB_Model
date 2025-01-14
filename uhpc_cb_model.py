@@ -46,18 +46,9 @@ units = {
 input_data = {}
 for feature, (min_val, max_val) in features.items():
     unit = units[feature]
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        slider_val = st.slider(f"{feature} ({unit})", min_value=float(min_val), max_value=float(max_val), value=float(min_val), key=f"slider_{feature}")
-    with col2:
-        input_val = st.number_input(feature, min_value=float(min_val), max_value=float(max_val), value=slider_val, key=f"input_{feature}")
+    col1 = st.columns([1])[0]
+    input_val = col1.number_input(f"{feature} ({unit})", min_value=float(min_val), max_value=float(max_val), value=(min_val + max_val) / 2, key=f"input_{feature}")
     input_data[feature] = input_val
-
-    # Slider ve number input değerlerini senkronize et
-    if f"slider_{feature}" in st.session_state and f"input_{feature}" in st.session_state:
-        if st.session_state[f"slider_{feature}"] != st.session_state[f"input_{feature}"]:
-            st.session_state[f"slider_{feature}"] = st.session_state[f"input_{feature}"]
-            st.session_state[f"input_{feature}"] = st.session_state[f"slider_{feature}"]
 
 # Ek özelliklerin hesaplanması
 input_data["SF/C"] = input_data["Silica fume"] / input_data["Cement"]
