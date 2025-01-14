@@ -48,6 +48,10 @@ units = {
 # Sayfa düzeni: 4 sütun
 col1, col2, col3, col4 = st.columns([1, 1, 1, 2])
 
+# "Feature Values" başlığı ekleniyor
+with st.container():
+    st.subheader("Feature Values")
+
 # Kullanıcı girişleri için ilk 3 sütun
 input_data = {}
 with col1:
@@ -78,7 +82,7 @@ with col3:
     input_data["BM"] = input_data["Cement"] + input_data["Silica fume"] + input_data["Slag"] + input_data["Fly ash"] + input_data["Limestone powder"] + input_data["Nano silica"]
     input_data["A/BM"] = (input_data["Fine aggregate"] + input_data["Coarse aggregate"]) / input_data["BM"]
 
-    # Tahmin butonu
+    # Tahmin butonu ve sonuç kutusu
     if st.button("Predict"):
         try:
             input_df = pd.DataFrame([input_data])
@@ -86,6 +90,7 @@ with col3:
             pool = Pool(input_df)
             prediction = model.predict(pool)
             st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
+            st.text_input("Predicted Compressive Strength (MPa)", value=f"{prediction[0]:.2f}", key="prediction_output")
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
 
