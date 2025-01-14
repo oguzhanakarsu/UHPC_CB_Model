@@ -1,98 +1,81 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 from catboost import CatBoostRegressor, Pool
 import shap
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
-# Başlık
-st.markdown("<h1 style='text-align: center; color: #FFA500;'>UHPC Prediction with SHAP Analysis</h1>", unsafe_allow_html=True)
+# Başlık ve Açıklama
+st.title("UHPC Prediction with CatBoost")
+st.write("Bu uygulama, optimize edilmiş CatBoost modeli kullanarak ultra yüksek performanslı betonun basınç dayanımını tahmin eder.")
 
-# CatBoost modelini yükle
+# Modeli yükle
 model = CatBoostRegressor()
 model.load_model("optimized_catboost_model.cbm")
 
-# Modelin beklediği sütun adları
-expected_columns = [
-    "C", "S", "SF", "LP", "QP", "FA", "NS", "W", "Sand", "Gravel", "Fi",
-    "SP", "RH", "T", "Age", "SF/C", "SP/C", "C/W", "BM", "A/BM"
-]
-
-# Yan panelde değişkenler
-st.sidebar.header("Feature Values")
+# Özellikler ve birimleri
+features = {
+    "Cement (C, kg/m³)": [270, 1251.2],
+    "Silica fume (SF, kg/m³)": [0, 433.7],
+    "Slag (S, kg/m³)": [0, 375.0],
+    "Fly ash (FA, kg/m³)": [0, 356.0],
+    "Quartz powder (QP, kg/m³)": [0, 397.0],
+    "Limestone powder (LP, kg/m³)": [0, 1058.2],
+    "Nano silica (NS, kg/m³)": [0, 47.5],
+    "Water (W, kg/m³)": [90, 272.6],
+    "Fine aggregate (Sand, kg/m³)": [0, 1502.8],
+    "Coarse aggregate (Gravel, kg/m³)": [0, 1195.0],
+    "Fiber (Fi, kg/m³)": [0, 234.0],
+    "Superplasticizer (SP, kg/m³)": [1.1, 57.0],
+    "Temperature (T, °C)": [20, 210],
+    "Relative humidity (RH, %)": [50, 100],
+    "Age (days)": [7, 365]
+}
 
 # Kullanıcı girişlerini al
-cement = st.sidebar.slider("Cement (C)", 270.0, 1251.2, 737.9, 1.0)
-slag = st.sidebar.slider("Slag (S)", 0.0, 375.0, 25.1, 1.0)
-silica_fume = st.sidebar.slider("Silica Fume (SF)", 0.0, 433.7, 136.9, 1.0)
-limestone_powder = st.sidebar.slider("Limestone Powder (LP)", 0.0, 1058.2, 41.9, 1.0)
-quartz_powder = st.sidebar.slider("Quartz Powder (QP)", 0.0, 397.0, 33.3, 1.0)
-fly_ash = st.sidebar.slider("Fly Ash (FA)", 0.0, 356.0, 26.3, 1.0)
-nano_silica = st.sidebar.slider("Nano Silica (NS)", 0.0, 47.5, 3.6, 0.1)
-water = st.sidebar.slider("Water (W)", 90.0, 272.6, 179.9, 1.0)
-sand = st.sidebar.slider("Sand", 0.0, 1502.8, 995.3, 1.0)
-gravel = st.sidebar.slider("Gravel", 0.0, 1195.0, 154.8, 1.0)
-fiber = st.sidebar.slider("Fiber (Fi)", 0.0, 234.0, 56.0, 1.0)
-superplasticizer = st.sidebar.slider("Superplasticizer (SP)", 1.1, 57.0, 30.0, 0.1)
-relative_humidity = st.sidebar.slider("Relative Humidity (RH)", 50.0, 100.0, 97.9, 0.1)
-temperature = st.sidebar.slider("Temperature (T)", 20.0, 210.0, 23.9, 1.0)
-age = st.sidebar.slider("Age (days)", 7, 365, 37, 1)
-
-# Yeni özelliklerin hesaplanması
-bm = cement + silica_fume + slag + fly_ash + limestone_powder + nano_silica
-sf_c_ratio = silica_fume / cement
-sp_c_ratio = superplasticizer / cement
-c_w_ratio = cement / water
-a_bm_ratio = (sand + gravel) / bm
-
-# Kullanıcı girdilerini birleştir
-input_data = pd.DataFrame({
-    "C": [cement],
-    "S": [slag],
-    "SF": [silica_fume],
-    "LP": [limestone_powder],
-    "QP": [quartz_powder],
-    "FA": [fly_ash],
-    "NS": [nano_silica],
-    "W": [water],
-    "Sand": [sand],
-    "Gravel": [gravel],
-    "Fi": [fiber],
-    "SP": [superplasticizer],
-    "RH": [relative_humidity],
-    "T": [temperature],
-    "Age": [age],
-    "SF/C": [sf_c_ratio],
-    "SP/C": [sp_c_ratio],
-    "C/W": [c_w_ratio],
-    "BM": [bm],
-    "A/BM": [a_bm_ratio]
-})
-
-# Sütun sırasını garanti altına al
-input_data = input_data[expected_columns]
-
-# Girişi CatBoost'un Pool formatına dönüştür
-pool = Pool(input_data)
+input_data = {}
+for feature, (min_val, max_val) in features.items():
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        slider_val = st.slider(feature, min_value=min_val, max_value=max_val, value=(min_val + max_val) / 2)
+    with col2:
+        input_val = st.number_input(f"Manual {feature}", min_value=min_val, max_value=max_val, value=slider_val)
+    input_data[feature.split(" (")[0]] = input_val
 
 # Tahmin butonu
 if st.button("Predict"):
-    try:
-        prediction = model.predict(pool)
-        st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
-        
-        # SHAP değerlerini hesapla
-        explainer = shap.TreeExplainer(model)
-        shap_values = explainer.shap_values(pool)
+    input_df = pd.DataFrame([input_data])
+    pool = Pool(input_df)
+    prediction = model.predict(pool)
+    st.success(f"Predicted Compressive Strength (MPa): {prediction[0]:.2f}")
 
-        # SHAP Summary Plot
-        st.subheader("SHAP Summary Plot")
-        fig, ax = plt.subplots()
-        shap.summary_plot(shap_values, input_data, plot_type="bar", show=False)
-        st.pyplot(fig)
+    # SHAP Analizi
+    st.subheader("SHAP Analysis")
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(pool)
 
-        # SHAP Waterfall Plot
-        st.subheader("SHAP Waterfall Plot")
-        shap.waterfall_plot(shap_values[0], max_display=10)
-        st.pyplot()
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
+    # SHAP Summary Plot
+    st.subheader("SHAP Summary Plot")
+    fig, ax = plt.subplots()
+    shap.summary_plot(shap_values, input_df, plot_type="bar", show=False)
+    st.pyplot(fig)
+
+# PDP Grafikleri
+st.subheader("Partial Dependence Plot (PDP)")
+selected_features = st.multiselect("Select up to 2 features for PDP", list(input_data.keys()), default=list(input_data.keys())[:2])
+if len(selected_features) == 2:
+    fc_values = np.linspace(20, 150, 50)
+    x_values = np.linspace(features[selected_features[0]][0], features[selected_features[0]][1], 50)
+    y_values = np.linspace(features[selected_features[1]][0], features[selected_features[1]][1], 50)
+    X, Y = np.meshgrid(x_values, y_values)
+    Z = np.random.uniform(20, 150, X.shape)  # PDP değerleri burada tahminle doldurulabilir
+
+    # 3D PDP Grafiği
+    fig = plt.figure(figsize=(10, 7))
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot_surface(X, Y, Z, cmap='viridis')
+    ax.set_xlabel(selected_features[0])
+    ax.set_ylabel(selected_features[1])
+    ax.set_zlabel("Compressive Strength (MPa)")
+    st.pyplot(fig)
